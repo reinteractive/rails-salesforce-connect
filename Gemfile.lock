@@ -3,6 +3,7 @@ PATH
   specs:
     rails-salesforce-connect (0.1.0)
       activerecord
+      pg
       rake
 
 GEM
@@ -24,6 +25,7 @@ GEM
     i18n (1.0.1)
       concurrent-ruby (~> 1.0)
     minitest (5.11.3)
+    pg (1.0.0)
     rake (12.3.1)
     thread_safe (0.3.6)
     tzinfo (1.2.5)

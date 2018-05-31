@@ -1,0 +1,1 @@
+load './lib/tasks/diff_schema.rake'
