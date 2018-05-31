@@ -4,8 +4,8 @@ This gem eases heroku-connect based integrations with salesforce for rails proje
 
 It provides:
 
- * A rails generator for commonly used salesforce models
- * A concern, `Connect::Record`, to include in salesforce-connected activerecord models
+ * A rails generator for commonly used salesforce models (`rails g connect:models`)
+ * A concern, `Connect::Record`, to include in salesforce-connected activerecord models (`require 'connect/record'`)
  * A concern, `Connect::Migration`, for migrations which should only run in development (eg because heroku connect is managing the schema in production).
  * A rake task `db:diff_schema` for describing the difference between your mapped fields in heroku and your local database.
 
