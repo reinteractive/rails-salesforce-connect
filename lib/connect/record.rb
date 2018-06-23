@@ -10,6 +10,9 @@ module Connect
 
       alias_attribute :created_at, :createddate
       alias_attribute :updated_at, :systemmodstamp
+
+      class_attribute :syncs_to_salesforce
+      validates :sfid, presence: true, unless: :syncs_to_salesforce?
     end
 
     class_methods do
@@ -21,6 +24,23 @@ module Connect
       def timestamp_attributes_for_update
         super << "systemmodstamp"
       end
+
+      def syncs_to_salesforce!
+        self.syncs_to_salesforce = true
+      end
+
+      # Lets you insert to salesforce tables from tests on an opt-in basis
+      def seeding_development_data
+        old_value = self.syncs_to_salesforce
+        self.syncs_to_salesforce = true
+        yield
+        self.syncs_to_salesforce = old_value
+      end
+    end
+
+    def readonly?
+      return false unless syncs_to_salesforce?
+      super
     end
 
     def synced?
