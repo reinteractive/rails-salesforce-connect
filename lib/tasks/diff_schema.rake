@@ -41,7 +41,9 @@ namespace :db do
       nul = (c["is_nullable"] == "YES")
       length = c["character_maximum_length"] ? ", limit: #{c["character_maximum_length"]}" : ""
       precision = c["numeric_precision"] ? ", precision: #{c["numeric_precision"]}" : ""
-      "_column :#{c["table_name"]}, :#{c["column_name"]}, #{c["data_type"].inspect}, null: #{nul.to_s} #{length} #{precision}"
+      type = c["data_type"].inspect
+      type = ':string' if c["data_type"] == "character varying"
+      "_column :#{c["table_name"]}, :#{c["column_name"]}, #{type}, null: #{nul.to_s} #{length} #{precision}"
     end
 
     local = local.map &method(:format_column)
