@@ -1,6 +1,6 @@
 namespace :db do
   desc "Identify differences from your schema"
-  task :diff_schema, [:remote_connection_string] => [:environment] do |task, args|
+  task :dif_schema, [:remote_connection_string] => [:environment] do |task, args|
     require 'pg'
 
     sql = <<-SQL
@@ -25,48 +25,47 @@ namespace :db do
       ;
     SQL
 
-    remote_conn = args[:remote_connection_string] || ENV["HC_URL"] || fail(<<-MSG)
+    remote_conn = args[:remote_connection_string] || ENV["HC_URL"] || ENV["HEROKUCONNECT_URL"] || fail(<<-MSG)
       Must specify remote_connection_string or provide ENV[HC_URL].
       Try
         export HC_URL="$(heroku config:get DATABASE_URL)"
 
     MSG
-    remote = PG::Connection.new(args[:remote_connection_string] || ENV["HC_URL"]).async_exec(sql).each.to_a
+    remote = PG::Connection.new(remote_conn).async_exec(sql).each.to_a
     local = ApplicationRecord.connection.raw_connection.async_exec(sql).each.to_a
 
-    local.each do |column|
-      # Remove if it exists
-      if remote.delete(column)
-        # Same column exists in both.
-        local.delete(column)
-        next
-      end
+    remote.each {|c| c["character_maximum_length"] = c["character_maximum_length"].to_i }
+    local.each {|c| c["character_maximum_length"] = c["character_maximum_length"].to_i }
+
+    def format_column(c)
+      nul = (c["is_nullable"] == "YES")
+      length = c["character_maximum_length"] ? ", length: #{c["character_maximum_length"]}" : ""
+      precision = c["numeric_precision"] ? ", precision: #{c["numeric_precision"]}" : ""
+      "_column :#{c["table_name"]}, :#{c["column_name"]}, #{c["data_type"].inspect}, null: #{nul.to_s} #{length} #{precision}"
     end
 
-    if local.any?
+    local = local.map &method(:format_column)
+    remote = remote.map &method(:format_column)
+
+    if (local - remote).any?
       puts "***************************************************"
       puts "**      Extra columns locally not in remote      **"
       puts "***************************************************"
-      local.each do |c|
-        nul = (c["is_nullable"] == "YES")
-        length = c["character_maximum_length"] ? ", length: #{c["character_maximum_length"]}" : ""
-        precision = c["numeric_precision"] ? ", precision: #{c["numeric_precision"]}" : ""
-        puts "remove_column :#{c["table_name"]}, :#{c["column_name"]}, #{c["data_type"].inspect}, null: #{nul.to_s}#{length}#{precision}"
+      (local - remote).each do |c|
+        puts "remove" + c
       end
 
     end
 
-    if remote.any?
+    if (remote - local).any?
       puts "***************************************************"
       puts "** Extra columns on remote not available locally **"
       puts "***************************************************"
-      remote.each do |c|
-        nul = (c["is_nullable"] == "YES")
-        length = c["character_maximum_length"] ? ", length: #{c["character_maximum_length"]}" : ""
-        precision = c["numeric_precision"] ? ", precision: #{c["numeric_precision"]}" : ""
-        puts "add_column :#{c["table_name"]}, :#{c["column_name"]}, #{c["data_type"].inspect}, null: #{nul.to_s} #{length} #{precision}"
+      (remote - local).each do |c|
+        puts "add" + c
       end
     end
-    abort "Differences found" if local.any? or remote.any?
+
+    abort "Differences found" if (local - remote).any? or (remote - local).any?
   end
 end
