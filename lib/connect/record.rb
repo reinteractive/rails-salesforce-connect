@@ -6,7 +6,6 @@ module Connect
 
     included do
       self.inheritance_column = 'rails_type'
-      self.primary_key = :sfid
 
       alias_attribute :created_at, :createddate
       alias_attribute :updated_at, :systemmodstamp
