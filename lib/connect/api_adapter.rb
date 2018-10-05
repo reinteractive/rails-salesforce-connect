@@ -1,6 +1,5 @@
 module Connect
   class ApiAdapter
-    API_VERSION = "41.0".freeze
 
     class << self
       def describe(env=ENV)
@@ -9,7 +8,7 @@ module Connect
 
       def client(env=ENV)
         @client ||= Restforce.new(
-          api_version:    API_VERSION,
+          api_version:    env.fetch('API_VERSION', "41.0"),
           host:           env["SALESFORCE_REST_API_HOST"],
           client_id:      env["SALESFORCE_REST_API_CLIENT_ID"],
           client_secret:  env["SALESFORCE_REST_API_CLIENT_SECRET"],
