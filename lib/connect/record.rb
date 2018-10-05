@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'active_support/concern'
 
 module Connect
@@ -6,7 +7,6 @@ module Connect
 
     included do
       self.inheritance_column = 'rails_type'
-      self.primary_key = :sfid
 
       alias_attribute :created_at, :createddate
       alias_attribute :updated_at, :systemmodstamp
@@ -39,7 +39,7 @@ module Connect
     end
 
     def readonly?
-      return false unless syncs_to_salesforce?
+      return false unless self.class.syncs_to_salesforce?
       super
     end
 
