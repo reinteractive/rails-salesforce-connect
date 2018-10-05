@@ -1,7 +1,7 @@
 # gem 'activerecord'
 Gem::Specification.new do |s|
   s.name        = 'rails-salesforce-connect'
-  s.version     = '0.0.7'
+  s.version     = '0.0.8'
   s.licenses    = ['MIT']
   s.summary     = "Tools for using heroku connect with rails"
   s.description = "Base class for salesforce migrations, activerecord types; deduplication rules aware, and rake tasks to sync schema"
