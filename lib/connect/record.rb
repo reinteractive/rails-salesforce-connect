@@ -38,7 +38,7 @@ module Connect
     end
 
     def readonly?
-      return false unless syncs_to_salesforce?
+      return false unless self.class.syncs_to_salesforce?
       super
     end
 
