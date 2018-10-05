@@ -12,6 +12,7 @@ namespace :salesforce do
       outfile = 'salesforce-schema.json'
 
       if args[:app_name] && args[:app_name].length > 0
+        require 'dotenv'
         env = Dotenv::Parser.call(`heroku config --app #{args[:app_name]} --shell`)
         raise "Error fetching heroku config for #{args[:app_name]}" unless $?.success?
         outfile = "salesforce-schema-#{args[:app_name]}.json"
