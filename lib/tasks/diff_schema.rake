@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 namespace :db do
   desc "Identify differences from your schema"
   task :dif_schema, [:remote_connection_string] => [:environment] do |task, args|
