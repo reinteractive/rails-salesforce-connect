@@ -31,12 +31,12 @@ To use `Connect::ApiAdapter`, you must provide the following environment variabl
 
 `gem "rails-salesforce-connect"`
 
-To use `rake db:diff_schema` you must specify a connection string or HC_URL env var.
+To use `salesforce-connect db:diff_schema` you must specify a connection string or HC_URL env var.
 For instance:
 
 `export HC_URL="$(heroku config:get DATABASE_URL)"`
 
-To use `rake salesforce:schema:dump`, you must provide one of:
+To use `salesforce-connect salesforce:schema:dump`, you must provide one of:
 
  * Environment variables for `Connect::ApiAdapter`, or
  * A heroku app name, which the current machine is authorized to read environment variabes from, with those variables set.

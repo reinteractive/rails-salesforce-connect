@@ -8,14 +8,11 @@
 
 gem_dir = File.expand_path("..", File.dirname(__FILE__))
 $LOAD_PATH.unshift gem_dir # Look in gem directory for resources first.
-exec_type = ARGV[0]
-if exec_type == 'rake' then
-    require 'rake'
-    require 'pp'
+require 'rake'
+require 'pp'
 
-    path = File.dirname File.dirname(__FILE__)
-    load "#{path}/lib/tasks/diff_schema.rake"
-    load "#{path}/lib/tasks/diff_salesforce.rake"
+path = File.dirname File.dirname(__FILE__)
+load "#{path}/lib/tasks/diff_schema.rake"
+load "#{path}/lib/tasks/diff_salesforce.rake"
 
-    Rake.application.invoke_task(ARGV[1])
-end
+Rake.application.invoke_task(ARGV[0])

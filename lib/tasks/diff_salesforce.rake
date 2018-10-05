@@ -11,13 +11,15 @@ namespace :salesforce do
       env = ENV
       outfile = 'salesforce-schema.json'
 
-      if args[:app_name].present?
+      if args[:app_name] && args[:app_name].length > 0
         env = Dotenv::Parser.call(`heroku config --app #{args[:app_name]} --shell`)
         raise "Error fetching heroku config for #{args[:app_name]}" unless $?.success?
         outfile = "salesforce-schema-#{args[:app_name]}.json"
       end
+      outfile = ENV.fetch("SCHEMA_FILE", outfile)
 
-      description = Salesforce::ApiAdapter.describe(env).group_by {|e| e["name"] }
+      require 'connect/api_adapter'
+      description = Connect::ApiAdapter.describe(env).group_by {|e| e["name"] }
       description.each do |k, v|
         raise "Expected name to be unique" unless v.one?
         description[k] = v.first
