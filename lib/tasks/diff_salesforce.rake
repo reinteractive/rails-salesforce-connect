@@ -13,8 +13,9 @@ namespace :salesforce do
 
       if args[:app_name] && args[:app_name].length > 0
         require 'dotenv'
-        env = Dotenv::Parser.call(`heroku config --app #{args[:app_name]} --shell`)
-        raise "Error fetching heroku config for #{args[:app_name]}" unless $?.success?
+        heroku_out = `heroku config --app #{args[:app_name]} --shell`
+        raise "Error fetching heroku config for #{args[:app_name]}: #{heroku_out}" unless $?.success?
+        env = Dotenv::Parser.call(heroku_out)
         outfile = "salesforce-schema-#{args[:app_name]}.json"
       end
       outfile = ENV.fetch("SCHEMA_FILE", outfile)
@@ -26,11 +27,38 @@ namespace :salesforce do
         description[k] = v.first
         description[k].delete("name")
       end
+
+      q = <<-SQL
+        Select
+          Id,
+          ValidationName,
+          Description,
+          EntityDefinition.DeveloperName,
+          ErrorDisplayField,
+          ErrorMessage
+        From
+          ValidationRule
+        where
+          Active = true
+        order by
+          Id
+      SQL
+      validations = Connect::ApiAdapter.tooling(env).query(q)
+      formatted_validations = {}
+      validations.each {|v| formatted_validations[v.dig('Id')] = {
+        description: v['Description'],
+        column: v.dig("EntityDefinition", 'DeveloperName'),
+        show_on: v['ErrorDisplayField'],
+        message: v['ErrorMessage'],
+        name: v['ValidationName'],
+      }}
+
       File.write(
         outfile,
-        JSON.pretty_generate(description)
+        JSON.pretty_generate({schema: description, validations: formatted_validations})
       )
     end
+# Select Id,Active,Description,ErrorDisplayField, ErrorMessage From ValidationRule Where EntityDefinition.QualifiedApiName = 'SVMXC__Parts_Request__c'
 
     desc "Diff two schema files against one another"
     task :diff, [:old, :new] do |_t, args|

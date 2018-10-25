@@ -17,7 +17,19 @@ module Connect
           client_secret:  env.fetch("SALESFORCE_REST_API_CLIENT_SECRET"),
           username:       env.fetch("SALESFORCE_REST_API_USERNAME"),
           password:       env.fetch("SALESFORCE_REST_API_PASSWORD"),
-          security_token: env.fetch("SALESFORCE_REST_API_SECURITY_TOKEN"),
+          security_token: env.fetch("SALESFORCE_REST_API_SECURITY_TOKEN", ""),
+        )
+      end
+
+      def tooling(env=ENV)
+        @tooling ||= Restforce::Tooling::Client.new(
+          api_version:    env.fetch('API_VERSION', "41.0"),
+          host:           env.fetch("SALESFORCE_REST_API_HOST"),
+          client_id:      env.fetch("SALESFORCE_REST_API_CLIENT_ID"),
+          client_secret:  env.fetch("SALESFORCE_REST_API_CLIENT_SECRET"),
+          username:       env.fetch("SALESFORCE_REST_API_USERNAME"),
+          password:       env.fetch("SALESFORCE_REST_API_PASSWORD"),
+          security_token: env.fetch("SALESFORCE_REST_API_SECURITY_TOKEN", ""),
         )
       end
     end
