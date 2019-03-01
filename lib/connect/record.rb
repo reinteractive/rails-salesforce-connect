@@ -80,7 +80,7 @@ module Connect
     end
 
     def await_sync!(timeout: 25, poll: 5, allocate_sfid_locally: !Rails.env.production?)
-      await_sync(timeout: timeout, poll: poll, allocate_sfid_locally: allocate_sfid_locally) || raise Connect::Record::SyncError.new(self)
+      await_sync(timeout: timeout, poll: poll, allocate_sfid_locally: allocate_sfid_locally) || raise(Connect::Record::SyncError.new(self))
     end
 
     class SyncError < StandardError
